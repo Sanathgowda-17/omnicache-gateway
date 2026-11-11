@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCache & Guard — Semantic AI Gateway & Reverse Proxy</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="brand">
+        <div class="logo-orb"></div>
+        <div>
+          <div class="brand-title">OMNICACHE <span class="accent-badge">&amp; GUARD</span></div>
+          <div class="brand-sub">Distributed High-Throughput Semantic AI Gateway</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button id="seedBtn" class="btn btn-secondary">⚡ Seed Knowledge</button>
+        <button id="clearCacheBtn" class="btn btn-outline">🗑️ Clear Cache</button>
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span>Gateway Active :8000</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Metrics Ribbon -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Cache Hit Ratio</div>
+        <div class="metric-value accent" id="metricHitRatio">0.0%</div>
+        <div class="metric-footer" id="metricHitCount">0 hits / 0 total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg. Latency Saved</div>
+        <div class="metric-value" id="metricLatencySaved">0.0 ms</div>
+        <div class="metric-footer">Sub-15ms vector memory hits</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Tokens Saved</div>
+        <div class="metric-value" id="metricTokensSaved">0</div>
+        <div class="metric-footer">Unnecessary LLM calls avoided</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Cost Avoided ($)</div>
+        <div class="metric-value success" id="metricCostSaved">$0.0000</div>
+        <div class="metric-footer">Direct API budget protection</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">PII Redactions</div>
+        <div class="metric-value warning" id="metricPiiCount">0</div>
+        <div class="metric-footer">Credit cards &amp; credentials scrubbed</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Split: Playground & Live Inspector -->
+    <main class="workspace-grid">
+      <!-- Left: Interactive Gateway Terminal -->
+      <section class="panel terminal-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-icon">⚡</span>
+            <span>Gateway Request Dispatcher</span>
+          </div>
+          <div class="threshold-control">
+            <label for="thresholdInput">Cosine Threshold:</label>
+            <input type="range" id="thresholdSlider" min="0.40" max="0.95" step="0.05" value="0.65">
+            <span id="thresholdVal" class="tag">0.65</span>
+          </div>
+        </div>
+
+        <div class="presets-row">
+          <span class="presets-label">Quick Tests:</span>
+          <button class="preset-chip" data-prompt="How do I reset my account password?">Original Password FAQ</button>
+          <button class="preset-chip" data-prompt="I forgot my password, how to change it?">Semantic Variation (Hit)</button>
+          <button class="preset-chip" data-prompt="My email is john@corp.com and card is 4111111111111111, help!">PII Masking Test</button>
+          <button class="preset-chip" data-prompt="What is the weather in Tokyo right now?">Unrelated Query (Miss)</button>
+        </div>
+
+        <form id="chatForm" class="chat-form">
+          <textarea
+            id="promptInput"
+            class="prompt-textarea"
+            rows="4"
+            placeholder="Enter prompt to route through the OmniCache Gateway..."
+            required
+          ></textarea>
+
+          <div class="form-footer">
+            <label class="toggle-container">
+              <input type="checkbox" id="bypassCacheToggle">
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Bypass Cache (Force Fresh LLM Call)</span>
+            </label>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary">
+              <span id="btnText">Dispatch Through Gateway</span>
+              <span id="btnSpinner" class="spinner hidden"></span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Response Inspector -->
+        <div id="responseContainer" class="response-container hidden">
+          <div class="response-header">
+            <div class="verdict-badges">
+              <span id="cacheBadge" class="badge">CACHE HIT</span>
+              <span id="latencyBadge" class="badge badge-neutral">12.4 ms</span>
+              <span id="providerBadge" class="badge badge-purple">OmniCache Vector Memory</span>
+            </div>
+            <div id="similarityGauge" class="similarity-pill">
+              Similarity: <strong id="simScoreVal">0.954</strong>
+            </div>
+          </div>
+
+          <!-- PII Alert Bar (if any) -->
+          <div id="piiAlertBar" class="pii-alert-bar hidden">
+            <span class="shield-icon">🛡️</span>
+            <span id="piiAlertText">2 Sensitive entities automatically redacted before processing.</span>
+          </div>
+
+          <div class="response-body">
+            <div class="label-sub">AI Output Response:</div>
+            <div id="responseContent" class="markdown-preview"></div>
+          </div>
+
+          <div class="matched-box" id="matchedBox">
+            <span class="matched-label">Matched Cached Memory:</span>
+            <span class="matched-text" id="matchedPromptText">"How do I reset my account password?"</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Real-time Telemetry Log -->
+      <section class="panel log-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-icon">📡</span>
+            <span>Live Gateway Telemetry Stream</span>
+          </div>
+          <button id="refreshLogsBtn" class="btn btn-tiny">Refresh</button>
+        </div>
+
+        <div class="table-container">
+          <table class="telemetry-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Prompt Preview</th>
+                <th>Similarity</th>
+                <th>Latency</th>
+                <th>Provider</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody">
+              <tr>
+                <td colspan="5" class="empty-state">No requests dispatched yet. Click a quick test above!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
